@@ -1,0 +1,105 @@
+managed;
+//strict;
+strict ( 2 );
+define behavior for ZR_SALESORDER_HDR alias ZrSalesorderHdr
+implementation in class ZBP_R_SALESORDER_HDR unique
+persistent table ZSALESORDER_HDR
+etag master LastChangedAt
+lock master
+authorization master( global )
+
+{
+//  field ( mandatory : create )
+//   Id,
+//   Displayid;
+
+  field ( readonly )
+   CreatedBy,
+   CreatedAt,
+   LastChangedBy,
+   LastChangedAt,
+   LocalLastChangedAt;
+
+  field ( readonly : update )
+   Id,
+   Displayid;
+
+
+  create;
+  update;
+  delete;
+
+
+  mapping for ZSALESORDER_HDR
+  {
+    Id = id;
+    Displayid = displayid;
+    Name = name;
+    Documenttype = documenttype;
+    Documentdate = documentdate;
+    Documentcurrency = documentcurrency;
+    Salesorganization = salesorganization;
+    Receiversalesorganization = receiversalesorganization;
+    Distributionchannel = distributionchannel;
+    Division = division;
+    Customer = customer;
+    Salesorder = salesorder;
+    Sampleowner = sampleowner;
+    Salesphase = salesphase;
+    CreatedBy = created_by;
+    CreatedAt = created_at;
+    LastChangedBy = last_changed_by;
+    LastChangedAt = last_changed_at;
+    LocalLastChangedAt = local_last_changed_at;
+  }
+
+  association _Items {create; }
+}
+
+
+define behavior for ZR_SALESORDER_LINE alias ZrSalesorderLine
+implementation in class ZBP_R_SALESORDER_LINE unique
+persistent table ZSALESORDER_LINE
+etag master LastChangedAt
+lock dependent by _Order
+authorization dependent by _Order
+
+{
+//  field ( mandatory : create )
+//   Displayid,
+//   Linenumber;
+
+  field ( readonly )
+   CreatedBy,
+   CreatedAt,
+   LastChangedBy,
+   LastChangedAt,
+   LocalLastChangedAt;
+
+  field ( readonly : update )
+   Displayid,
+   Linenumber;
+
+
+  update;
+  delete;
+
+  mapping for ZSALESORDER_LINE
+  {
+    Displayid = displayid;
+    Linenumber = linenumber;
+    Product = product;
+    Description = description;
+    Uom = uom;
+    Requestedquantity = requestedquantity;
+    Salesorder = salesorder;
+    Salesorderitem = salesorderitem;
+    CreatedBy = created_by;
+    CreatedAt = created_at;
+    LastChangedBy = last_changed_by;
+    LastChangedAt = last_changed_at;
+    LocalLastChangedAt = local_last_changed_at;
+  }
+
+   association _Order;
+}

@@ -1,0 +1,5 @@
+@EndUserText.label: 'Sales Order API V2 Service Definition'
+define service ZUI_SALESORDER_HDR_O2 {
+  expose ZC_SALESORDER_HDR  as SalesOrder;
+  expose ZC_SALESORDER_LINE as SalesLine;
+}
