@@ -92,8 +92,6 @@ authorization dependent by _Order
     Description = description;
     Uom = uom;
     Requestedquantity = requestedquantity;
-    Salesorder = salesorder;
-    Salesorderitem = salesorderitem;
     CreatedBy = created_by;
     CreatedAt = created_at;
     LastChangedBy = last_changed_by;

@@ -154,8 +154,66 @@ CLASS ZCL_GEN_SO IMPLEMENTATION.
 
 
       DATA(cid) = getCID( ).
+      DATA save TYPE abap_boolean.
+      DATA lv_po_number TYPE string.
 
-      MODIFY ENTITIES OF zr_salesorder_hdr
+      MODIFY ENTITIES OF i_salesordertp
+          ENTITY salesorder
+          CREATE
+          FIELDS ( SalesOrderType salesorganization distributionchannel organizationdivision soldtoparty purchaseorderbycustomer TransactionCurrency )
+          WITH VALUE #( ( %cid = cid
+                          %data = VALUE #(
+                                            SalesOrderType = 'TA'
+                                            salesorganization = lv_order-Salesorganization
+                                            distributionchannel = lv_order-DistributionChannel
+                                            organizationdivision = lv_order-Division
+                                            soldtoparty = |{ lv_order-Customer ALPHA = IN }|
+                                            purchaseorderbycustomer = lv_order-Displayid
+                                            TransactionCurrency = lv_order-DocumentCurrency
+                                          )
+                        )  )
+
+      CREATE BY \_item
+      FIELDS ( Product RequestedQuantity )
+      WITH VALUE #( ( %cid_ref = cid
+                      %target = VALUE #( FOR wa_data IN lv_items INDEX INTO i (
+                        %cid =  |{ cid }{ i WIDTH = 3 ALIGN = RIGHT PAD = '0' }|
+                        Product = wa_data-Product
+                        RequestedQuantity = wa_data-RequestedQuantity
+                      ) ) ) )
+      MAPPED DATA(ls_mapped)
+      FAILED DATA(ls_failed)
+      REPORTED DATA(ls_reported).
+
+
+      COMMIT ENTITIES BEGIN
+      RESPONSE OF i_salesordertp
+      FAILED DATA(ls_save_failed)
+      REPORTED DATA(ls_save_reported).
+
+      IF ls_save_failed IS INITIAL.
+        DATA: ls_so_temp_key               TYPE i_salesordertp-SalesOrder.
+        CONVERT KEY OF i_salesordertp FROM ls_so_temp_key  TO DATA(ls_so_final_key).
+        lv_po_number = ls_so_final_key-SalesOrder.
+      ENDIF.
+
+      COMMIT ENTITIES END.
+
+      IF lv_po_number IS NOT INITIAL.
+        MODIFY ENTITIES OF zr_salesorder_hdr
+                 ENTITY ZrSalesorderHdr
+                 UPDATE FIELDS ( Salesorder )
+                 WITH VALUE #( ( Salesorder = lv_po_number
+                                 Displayid = lv_order-Displayid
+                            )  )
+                 REPORTED DATA(ls_so_reported)
+                    FAILED DATA(ls_so_failed).
+      ENDIF.
+
+
+      IF lv_po_number IS NOT INITIAL.
+
+        MODIFY ENTITIES OF zr_salesorder_hdr
       ENTITY ZrSalesorderHdr
       CREATE FIELDS (
         Id
@@ -209,19 +267,19 @@ CLASS ZCL_GEN_SO IMPLEMENTATION.
         FAILED   DATA(ls_po_failed)
         MAPPED   DATA(ls_po_mapped).
 
-      COMMIT ENTITIES BEGIN
-         RESPONSE OF zr_salesorder_hdr
-         FAILED DATA(lt_commit_failed)
-         REPORTED DATA(lt_commit_reported).
-      ...
-      COMMIT ENTITIES END.
+        COMMIT ENTITIES BEGIN
+           RESPONSE OF zr_salesorder_hdr
+           FAILED DATA(lt_commit_failed)
+           REPORTED DATA(lt_commit_reported).
+        ...
+        COMMIT ENTITIES END.
+        response = |Sales Order Created Successfully with Sales Order Number { lv_po_number }|.
+      ELSE.
+        response = |Sales Order Creation Failed|.
+      ENDIF.
 
-
+      CLEAR: lv_order,lv_po_number,save .
     ENDLOOP.
-
-
-
-    response = 'Order saved successfully'.
 
 
   ENDMETHOD.

@@ -10,8 +10,6 @@ define view entity ZC_SALESORDER_LINE
   Description,
   Uom,
   Requestedquantity,
-  Salesorder,
-  Salesorderitem,
   CreatedBy,
   CreatedAt,
   LastChangedBy,

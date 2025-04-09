@@ -12,8 +12,6 @@ define view entity ZR_SALESORDER_LINE
   description as Description,
   uom as Uom,
   requestedquantity as Requestedquantity,
-  salesorder as Salesorder,
-  salesorderitem as Salesorderitem,
   @Semantics.user.createdBy: true
   created_by as CreatedBy,
   @Semantics.systemDateTime.createdAt: true
